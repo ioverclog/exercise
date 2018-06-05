@@ -265,7 +265,7 @@ class App extends Component {
         }
             
         try {
-            const response = await DataRequest.getRegionData(param);
+            const response = await DataRequest.getRegionData(params);
             
             this.setState({
                 datas: response[koreaRegionData[0]]
@@ -275,7 +275,7 @@ class App extends Component {
     }
     
     async insertExerciseRegionData() {
-        let param = {
+        let params = {
             method: "POST",
             data: {
                 _method: "post",
