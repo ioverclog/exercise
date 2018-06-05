@@ -25,7 +25,7 @@ http.interceptors.response.use(
         }
         response=JSON.parse(decodeHtmlEntity(response));
         return response.data;
-    }
+    },
     function(error){
         return Promise.reject(error);
     }
@@ -61,17 +61,17 @@ function APIService(config, opt){
     }       
 }
 
-const RegionDAQ = {
+const RegionDAO = {
     serverUrl : "http://localhost:63342/exerciseApi/api/apiTest.php",
-    getRegionData : function (params) {
+    getRegionData: function (params) {
         let config = {
             type: "API",
             method: "GET",
             url: this.serverUrl,
             params: params
-        }
+        };
         return APIService(config);
-    }
+    },
     insertRegionData: function (params) {
         let config = {
             type: "API",
@@ -116,7 +116,7 @@ export default (() => {
             return DataResource.regionData(response);
         },
         insertRegionData: async function (params) {
-            const respnse = await RegionDAO.insertRegionData(params);
+            const response = await RegionDAO.insertRegionData(params);
             return response;
         },
         deleteRegionData: async function (params) {
