@@ -3,7 +3,8 @@ import SearchInput, {createFilter} from './lib/react-search-input'
 import {BrowserView, MobileView, isBrowser, isMobile} from 'react-device-detect'
 import {KEYS_TO_FILTERS, KEYS_TO_FILTERS_REGION, koreaRegionData, datas} from './data_set';
 import './App.css';
-//test
+import DataRequest from './DataRequest';
+
 Array.prototype.moveNoticeElement = function(){
     let to = 0;
     this.forEach((element, index)=>{
@@ -244,7 +245,7 @@ class App extends Component {
         this.state = {
             searchTerm: '',
             region : koreaRegionData[0],
-            datas : datas[koreaRegionData[0]]
+            datas : ''//datas[koreaRegionData[0]]
         };
 
         //this.searchUpdated = this.searchUpdated.bind(this);
@@ -254,7 +255,50 @@ class App extends Component {
         this.searchInput = document.querySelectorAll('.search-input input')[0];
         this.searchClearBtn = document.getElementById('searchClearBtn');
         this.searchLens = document.getElementById('searchLens');
+        
+        this.getExerciseRegionData();
     }
+    
+    async getExerciseRegionData( id ) {
+        let params = {
+            "id" : id
+        }
+            
+        try {
+            const response = await DataRequest.getRegionData(param);
+            
+            this.setState({
+                datas: response[koreaRegionData[0]]
+            });
+        } catch (e) {
+        }
+    }
+    
+    async insertExerciseRegionData() {
+        let param = {
+            method: "POST",
+            data: {
+                _method: "post",
+                notice : 0,
+                address1 : 'seoul',
+                address2 : 'kangnam',
+                address3 : 'sinsa',
+                detailAddress: 'garosu-gil apple',
+                startTime : '10:00 ~ 12:00',
+                userName : 'steve jobs',
+                tel : '010-sss-ssss'
+            }
+        }
+        try {
+            const response = await DataRequest.insertRegionData(params);
+        } catch (e) {
+        }
+    }
+    
+    clickInsert() {
+        this.getExerciseRegionData();
+    }
+    
     clickRegion(e, region) {
         e.preventDefault();
         let regionName = (typeof region === 'string')? region : e.target.value;
@@ -301,10 +345,10 @@ class App extends Component {
     }
 
     render() {
-        const topdata = this.state.datas.topData;
+        const topdata = !!this.state.datas && this.state.datas.topData;
         const $topCont = (
             <div className="topCont">
-                {this.state.datas.topData.map((obj, index)=>
+                {!!topdata && topdata.length > 0 && topdata.map((obj, index)=>
                     <div className={`${topdata.length > 1 && index == (topdata.length - 1) ? 'info' : ''}`} key={index}>
                         <h3>{obj.title}</h3>
                         <ul>
@@ -322,7 +366,7 @@ class App extends Component {
         const regionData = this.state.datas.regionData;
         const $bodyCont = (
             <div className="rightCont-bottom">
-                {regionData
+                {!!regionData && regionData
                     .sort(Util.sortRegion)
                     .moveNoticeElement()
                     .filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS))
@@ -346,7 +390,7 @@ class App extends Component {
             </div>
         );
 
-        return (
+        return (!!this.state.datas &&
             <div className="table">
                 <div className="searchCont">
                     <div id="searchClearBtn" onClick={this.setInputBlur.bind(this)}><span><a href="#">X</a></span></div>
@@ -404,6 +448,7 @@ class App extends Component {
                     </div>
                     <div className="regionContBody">
                         <h2>{this.state.region} 지역 연공장 안내</h2>
+                        <button onClick={(e)=>this.clickInsert(e)}>POST insert</button>
                         {!this.state.subRegion && $topCont}
                         {$bodyCont}
                     </div>
