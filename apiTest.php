@@ -230,7 +230,7 @@ class API extends REST {
                 'status' => 1,
                 'status_message' => $regionInfoResult.' '.$userInfoResult.' Updated Successfully.'
             );
-        } else {
+        } else {        
             $response = array(
                 'status' => 0,
                 'status_message' => 'Updated Failed'
@@ -241,11 +241,42 @@ class API extends REST {
     }
     
     public function processApi(){
-        |
+        switch( $this->get_method() ) {
+            case 'GET':
+                $getId = $this->_request["id"];
+                if( !empty($getId) ){
+                    $id = intval($getId);
+                    $this->get_exercise($id);
+                } else {
+                    $this->get_exercise();
+                }
+                break;
+            case 'POST':
+                $this->insert_exercise();
+                break;
+            case 'DELETE':
+                $deleteId = $this->_request["id"];
+                if( !empty($deleteId) ) {
+                    $id = intval($deleteId);
+                    $this->delete_exercise($id);
+                }
+                break;
+            case 'PUT':
+                $editId = $this->_request["id"];
+                if( !empty($editId) ){
+                    $id = intval($editId);
+                    $this->edit_exercise($id);
+                }
+                break;
+            default:
+                $this->response('', 405);
+                break;
+        }
     }
-    
-    
 }
+
+$api = new API;
+$api->processApi ();
 
 
 
