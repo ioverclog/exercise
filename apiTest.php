@@ -50,14 +50,22 @@ class API extends REST {
             //Region Data
             $regionData = array();
             foreach($response as $key => $data){
-                $member = array('name'=>$data['userName'], 'tel'=>array($data['tel']));
-                $subRegions = array('subRegion'=>$data['address3'], 'detailRegion'=>$data['detailAddress'].'<br />'.$data['startTime'], 'info' => array($member));
-                $regionData[] = array('region'=>$data['address2'], 'subRegions'=>array($subRegions));
+                if($data['address1'] == $regionItem['name']){
+                    $member = array('name'=>$data['userName'], 'tel'=>array($data['tel']));
+                    $subRegions = array('subRegion'=>$data['address3'], 'detailRegion'=>$data['detailAddress'].'<br />'.$data['startTime'], 'info' => array($member));
+                    $regionData[] = array('region'=>$data['address2'], 'subRegions'=>array($subRegions));
+                }              
             }
             
             //end
             $stuff[$regionItem['name']] = array('topData'=>$topData, 'regionData'=>$regionData);
         }
+        
+        $regionArr = array();
+        foreach($regionName as $key => $regionObj){
+            $regionArr[] = $regionObj['name'];
+        }
+        $stuff['koreaRegionData'] = $regionArr;
         
         $this->response(json_encode($stuff), 200, $this->connection);
     }
