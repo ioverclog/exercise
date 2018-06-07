@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insert DB</title>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<form id="InsertDb">
+  notice <input type="text" name="address1" /><br />
+  <br />
+  address1 <input type="text" name="address1" /><br />
+  address2 <input type="text" name="address2" /><br />
+  address3 <input type="text" name="address3" /><br />
+  detailAddress <input type="text" name="detailAddress" /><br />
+  <br />
+  userName <input type="text" name="userName" /><br />
+  tel <input type="text" name="tel" /><span>[+]</span>
+  
+  <br />
+  <input type="submit" value="InsertDb" />
+</form>
+
+<br />
+<br />
+
+<div id="deleteBtn">
+    delete Data
+    <input type="text" name="deleteInput" />
+    <input type="button" value="DeleteBtn" />
+</div>
+<br />
+<div id="editBtn">
+    Edit Data
+    <input type="text" name="editInput" />
+    <input type="button" value="EditBtn" />
+</div>
+<br />
+<div id="getBtn">
+    Get Data
+    <input type="button" value="GetBtn" />
+</div>
+
+<script>
+    $('#InsertDb').submit(function(event){
+          event.preventDefault();
+          var $form = $(this),
+              notice = $form.find( 'input[name="notice"]' ).is(":checked"),
+              address1 = $form.find( 'input[name="address1"]' ).val(),
+              address2 = $form.find( 'input[name="address2"]' ).val(),
+              address3 = $form.find( 'input[name="address3"]' ).val(),
+              detailAddress = $form.find( 'input[name="detailAddress"]' ).val(),
+              startTime = $form.find( 'input[name="startTime"]' ).val(),
+              
+              userName = $form.find( 'input[name="userName"]' ).val(),
+              tel = $form.find( 'input[name="tel"]' ).val();
+              
+          var url = '/exerciseApi/api/apiTest.php';
+          axios.post(url, {
+              mothod: "POST",
+              data: {
+                  _method: "post",
+                  notice : notice,
+                  address1 : address1,
+                  address2 : address2,
+                  address3 : address3,
+                  detailAddress: detailAddress,
+                  startTime : startTime,
+                  userName : userName,
+                  tel : tel
+              }
+          })
+          .then(function (response) {
+              console.log(response);
+          })
+          .catch(function (error) {
+              console.log(error);
+          })
+    });
+    
+    $("#deleteBtn > input[type=button]").click(function(){
+        var deleteData = $("#deleteBtn > input[type=text]").val();
+        var url = "/exerciseApi/api/apiTest.php";
+        $.ajax({
+            url : url
+            method: "POST",
+            data: {
+                _method:"delete",
+                id : deleteData
+            },
+            dataType: 'text',
+            success: function (result) {
+                console.debug(result);
+            },
+            error: function (xhr, status, p3, p4) {
+                console.debug(xhr);
+                var err = "!! Error " + " " + status + " " + p3;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                      err = JSON.parse(xhr,responseText).message;
+                      
+                console.log(err);      
+            }
+        })
+    });
+    
+    $('#editBtn > input[type=button]').click(function(){
+          var editData = $("#editBtn > input[type=text]").val();
+          
+          var $form = $('#InsertDb'),
+              notice = $form.find( 'input[name="notice"]' ).is(":checked"),
+              address1 = $form.find( 'input[name="address1"]' ).val(),
+              address2 = $form.find( 'input[name="address2"]' ).val(),
+              address3 = $form.find( 'input[name="address3"]' ).val(),
+              detailAddress = $form.find( 'input[name="detailAddress"]' ).val(),
+              startTime = $form.find( 'input[name="startTime"]' ).val(),
+              
+              userName = $form.find( 'input[name="userName"]' ).val(),
+              tel = $form.find( 'input[name="tel"]' ).val();
+              
+          var url = '/exerciseApi/api/apiTest.php';
+          $.ajax({
+              url: url,
+              mothod: "POST",
+              data: {
+                  _method: "post",
+                  notice : notice,
+                  address1 : address1,
+                  address2 : address2,
+                  address3 : address3,
+                  detailAddress: detailAddress,
+                  startTime : startTime,
+                  userName : userName,
+                  tel : tel
+              },
+              dataType: 'text',
+              success: function (result) {
+                console.debug(result);
+              },
+              error: function (xhr, status, p3, p4) {
+                console.debug(xhr);
+                var err = "!! Error " + " " + status + " " + p3;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                      err = JSON.parse(xhr,responseText).message;
+                      
+                console.log(err);      
+              }
+          }); 
+     });
+     
+     $("#getBtn > input[type=button]").click(function(){
+        var url = '/exerciseApi/api/apiTest.php';
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: 'text',
+            success: function (result) {
+                console.debug(result);
+              },
+              error: function (xhr, status, p3, p4) {
+                console.debug(xhr);
+                var err = "!! Error " + " " + status + " " + p3;
+                if (xhr.responseText && xhr.responseText[0] == "{")
+                      err = JSON.parse(xhr,responseText).message;
+                      
+                console.log(err);      
+              }
+        });
+     });
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
