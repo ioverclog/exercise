@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import SearchInput, {createFilter} from './lib/react-search-input'
 import {BrowserView, MobileView, isBrowser, isMobile} from 'react-device-detect'
-import {KEYS_TO_FILTERS, KEYS_TO_FILTERS_REGION, koreaRegionData, datas} from './data_set';
+import {KEYS_TO_FILTERS, KEYS_TO_FILTERS_REGION} from './data_set';
 import './App.css';
 import DataRequest from './DataRequest';
 
@@ -174,7 +174,7 @@ class SearchResult extends Component {
     }
 
     render() {
-        let {searchTerm} = this.props;
+        let {searchTerm, datas, koreaRegionData} = this.props;
         const $searchResult = (
             koreaRegionData.map((region, idx)=>{
                 let TopDataCont = ({data}) => {
@@ -244,8 +244,9 @@ class App extends Component {
 
         this.state = {
             searchTerm: '',
-            region : koreaRegionData[0],
-            datas : ''//datas[koreaRegionData[0]]
+            koreaRegionData: '',
+            region : '',
+            datas : ''
         };
 
         //this.searchUpdated = this.searchUpdated.bind(this);
@@ -266,9 +267,12 @@ class App extends Component {
             
         try {
             const response = await DataRequest.getRegionData(params);
-            
+            const koreaRegionData = response['koreaRegionData'];
+
             this.setState({
-                datas: response[koreaRegionData[0]]
+                koreaRegionData: koreaRegionData,
+                region: koreaRegionData[0],
+                datas: response
             });
         } catch (e) {
         }
@@ -305,8 +309,7 @@ class App extends Component {
         this.setState({
             searchTerm: '',
             region: regionName,
-            subRegion: '',
-            datas: datas[regionName]
+            subRegion: ''
         });
     }
     searchUpdated (term) {
@@ -345,7 +348,10 @@ class App extends Component {
     }
 
     render() {
-        const topdata = !!this.state.datas && this.state.datas.topData;
+        const datas = this.state.datas;
+        const region = this.state.region;
+
+        const topdata = !!datas && !!region && datas[region].topData;
         const $topCont = (
             <div className="topCont">
                 {!!topdata && topdata.length > 0 && topdata.map((obj, index)=>
@@ -363,7 +369,7 @@ class App extends Component {
             </div>
         );
 
-        const regionData = this.state.datas.regionData;
+        const regionData = !!datas && !!region && datas[region].regionData;
         const $bodyCont = (
             <div className="rightCont-bottom">
                 {!!regionData && regionData
@@ -390,21 +396,21 @@ class App extends Component {
             </div>
         );
 
-        return (!!this.state.datas &&
+        return (!!datas && !!region &&
             <div className="table">
                 <div className="searchCont">
                     <div id="searchClearBtn" onClick={this.setInputBlur.bind(this)}><span><a href="#">X</a></span></div>
                     <SearchInput className="search-input ty_sch" placeholder="이름, 전화번호, 지역명" value={this.state.searchTerm} onFocus={this.onFocus.bind(this)} onChange={this.searchUpdated.bind(this)} />
                     <div id="searchLens">&nbsp;</div>
                 </div>
-                {!!this.state.searchTerm && <SearchResult searchTerm={this.state.searchTerm} />}
+                {!!this.state.searchTerm && <SearchResult searchTerm={this.state.searchTerm} datas={this.state.datas} koreaRegionData={this.state.koreaRegionData} />}
                 {!this.state.searchTerm &&
                 <div className="searchRegionCont">
                     <div className="searchBox">
                         <div className="mobile">
                             <div className="search-region-select-level1">
                                 <select onChange={(e)=>this.clickRegion(e)} value={this.state.region}>
-                                    {koreaRegionData.map((region, idx)=>{
+                                    {this.state.koreaRegionData.map((region, idx)=>{
                                         return <option key={idx} value={region}>{region}</option>
                                     })}
                                 </select>
@@ -421,7 +427,7 @@ class App extends Component {
                         <div className="pc">
                             <div className="search-region-level1">
                                 <ul>
-                                    {koreaRegionData.map((region, idx)=>{
+                                    {this.state.koreaRegionData.map((region, idx)=>{
                                         if( this.state.region == region ){
                                             return <li key={idx} className="axis span-width-50"><span className="radiWrap">{region} <em>({datas[region].regionData.length})</em></span></li>
                                         } else {
