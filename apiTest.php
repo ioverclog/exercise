@@ -144,7 +144,7 @@ class API extends REST {
         
         //1) insert UserInfo
         $query = "INSERT IGNORE INTO userinfo (userName, tel) VALUES ('$userName', '$tel');";
-        $resutl = mysqli_query($connection, $query);
+        $result = mysqli_query($connection, $query);
         if($result){
             $userKey = mysqli_insert_id($connection);
             if($userKey == '0' || $userKey == 0){
@@ -164,7 +164,7 @@ class API extends REST {
         }
         
         //3) insert Exercise
-        $query_exercise = "INSERT INTO exercise(regionKey, userKey, notice) VALUE ('$insertedKeyArray[0]', '$insertedKeyArray[1]', '$notice');";
+        $query_exercise = "INSERT INTO exercise(regionKey, userKey, notice) VALUES ('$insertedKeyArray[0]', '$insertedKeyArray[1]', '$notice');";
         $result = mysqli_query($connection, $query_exercise) or die("Connection failed in exercise table: " . mysqli_error($connection));
         if($result){
             $response = array(
@@ -185,7 +185,7 @@ class API extends REST {
     {
         $connection = $this->connection;
         $regionInfoResult = '';
-        $userInfoResutl = '';
+        $userInfoResult = '';
         
         $param = $this->_request;
         $address1 = $param['address1'];
@@ -203,8 +203,8 @@ class API extends REST {
         $regionKey = $row["regionKey"];
         $userKey = $row["userKey"];
         
-        $query="UPDATE regionInfo SET";
-        $query.=", address1='$address1'";
+        $query="UPDATE regionInfo SET ";
+        $query.="address1='$address1'";
         $query.=", address2='$address2'";
         $query.=", address3='$address3'";
         $query.=", detailAddress='$detailAddress'";
@@ -216,10 +216,10 @@ class API extends REST {
         }
         
         // 3) update userinfo with userKey
-        $query="UPDATE userInfo SET";
-        $query="userName='$userName'";
-        $query=", tel='$tel'";
-        $query=" WHERE userId = $userKey";
+        $query="UPDATE userInfo SET ";
+        $query.="userName='$userName'";
+        $query.=", tel='$tel'";
+        $query.=" WHERE userId = $userKey";
         $result = mysqli_query($connection, $query);
         if( $result ){
             $userInfoResult = 'userInfo';
