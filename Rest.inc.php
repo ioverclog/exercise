@@ -48,6 +48,7 @@ class REST {
                   $data = json_decode(file_get_contents("php://input"), true);
                   $this->_request = $this->cleanInputs($data['data']);
               }
+              break;  
             case "GET":
               $this->_request = $this->cleanInputs($_GET);
               break;
