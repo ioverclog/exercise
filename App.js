@@ -96,28 +96,11 @@ const Util = {
 };
 
 const SubRegion = ({data, idx, lastRegion, lastSubResion}) => {
-    const info = data.info.map((obj, index)=>{
-        let tel = obj.tel.map((num, idx)=>{
-            let comma = '';
-            if (obj.tel.length != idx + 1) {
-                comma = '   <br />';
-            }
-            return num + comma;
-        }).join('');
-
-        let nextInfo = '';
-        if (data.info.length != index + 1) {
-            nextInfo = '<br />';
-        }
-
-        return obj.name + ' ' + tel + nextInfo;
-    }).join('');
-
     return (
         <div className={`contContainer ${idx > 0 ? 'topline' : ''} ${(lastRegion && lastSubResion) ? 'bottomline' : ''}`}>
             <div className="c1 inner" dangerouslySetInnerHTML={{__html: data.subRegion}}>{}</div>
             <div className="c2 inner" dangerouslySetInnerHTML={{__html: data.detailRegion}}></div>
-            <div className="c3 inner" dangerouslySetInnerHTML={{__html: info}}></div>
+            <div className="c3 inner" dangerouslySetInnerHTML={{__html: data.info[0]}}></div>
         </div>
     )
 };
@@ -248,8 +231,6 @@ class App extends Component {
             region : '',
             datas : ''
         };
-
-        //this.searchUpdated = this.searchUpdated.bind(this);
     }
 
     componentDidMount() {
