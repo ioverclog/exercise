@@ -73,7 +73,7 @@
                   }
               });
               if(userName){
-                userNameArr.push(usrName.trim());
+                userNameArr.push(userName.trim());
               }
           });
              
@@ -197,7 +197,7 @@
         $telephone.append('<input type="text" name="tel" /><br />');
     });
     
-    $("#userinfo").on('click', '.addUser, function(){
+    $("#userinfo").on('click', '.addUser', function(){
         $("#userinfo").append('<div class="userInfo" style="border:1px solid #ccc;padding:10px;">\n' +
           userName <input type="text" name="userName" /><span class="addUser">[+]</span><br />\n' +
           <div class="telephone">\n' +
