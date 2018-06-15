@@ -27,7 +27,7 @@ class API extends REST {
         
         $query = "SELECT *, GROUP_CONCAT( concat(userInfo.userName, '', userInfo.tel) SEPARATOR '<br />' ) as 'member' FROM exercise
                   INNER JOIN regionInfo ON exercise.regionKey = regionInfo.regionId
-                  INNER JOIN userInfo ON exercise.userKey = userInfo.userId"
+                  INNER JOIN userInfo ON exercise.userKey = userInfo.userId
                   GROUP BY exercise.regionKey";
                   
         if($id != 0){
