@@ -25,9 +25,10 @@ class API extends REST {
             $regionName[] = $row;
         }
         
-        $query = "SELECT * FROM exercise
+        $query = "SELECT *, GROUP_CONCAT( concat(userInfo.userName, '', userInfo.tel) SEPARATOR '<br />' ) as 'member' FROM exercise
                   INNER JOIN regionInfo ON exercise.regionKey = regionInfo.regionId
-                  INNER JOIN userInfo ON exercise.userKey = userInfo.userId";
+                  INNER JOIN userInfo ON exercise.userKey = userInfo.userId"
+                  GROUP BY exercise.regionKey";
                   
         if($id != 0){
             $query.=" WHERE exercise.id=".$id." LIMIT 1";
@@ -41,18 +42,18 @@ class API extends REST {
         }
         
         $stuff = array();
+        $topTitle = array('ㅇㅕㄴㄱㅗㅇㅈㅏㅇㄱㅐㅅㅓㄹ', 'title2');
         foreach($regionName as $key => $regionItem){
             //Top Data
             $member = array('name'=>'jo-yong-chan', 'tel'=>'010-3232-3232');
             $region = array('title'=>'goyang-bodoso', 'info'=>array($member));
-            $topData = array(array('title'=>'title', 'region'=>array($region)));
+            $topData = array(array('title'=>$topTitle[0], 'region'=>array($region)));
             
             //Region Data
             $regionData = array();
             foreach($response as $key => $data){
                 if($data['address1'] == $regionItem['name']){
-                    $member = array('name'=>$data['userName'], 'tel'=>array($data['tel']));
-                    $subRegions = array('subRegion'=>$data['address3'], 'detailRegion'=>$data['detailAddress'].'<br />'.$data['startTime'], 'info' => array($member));
+                    $subRegions = array('subRegion'=>$data['address3'], 'detailRegion'=>$data['detailAddress'].'<br />'.$data['startTime'], 'info' => array($data['member']));
                     $regionData[] = array('region'=>$data['address2'], 'subRegions'=>array($subRegions));
                 }              
             }
@@ -143,38 +144,62 @@ class API extends REST {
         //0) insert RegionInfo
         $query = "INSERT INTO regionInfo(address1, address2, address3, detailAddress, startTime) VALUES ('$address1', '$address2', '$address3', '$detailAddress', '$startTime');";
         $result = mysqli_query($connection, $query);
-        if($result){
+        if($result === true){
             $regionKey = mysqli_insert_id($connection);
-            array_push($insertKeyArray, $regionKey);
         } else {
             die("Connection failed in regionInfo table: " . mysqli_error($connection));
         }
         
         //1) insert UserInfo
-        $query = "INSERT IGNORE INTO userinfo (userName, tel) VALUES ('$userName', '$tel');";
-        $result = mysqli_query($connection, $query);
-        if($result){
-            $userKey = mysqli_insert_id($connection);
-            if($userKey == '0' || $userKey == 0){
-                //var_dump('$last_id_region :: 00');
-                $query = "SELECT userId FROM userinfo WHERE tel='$tel'";
-                $result = mysqli_query($connection, $query) or die("Connection failed in SELECT userId : " . mysqli_error($connection));
-                if($result){
-                    while($row = mysqli_fetch_assoc($result))
-                    {
-                        $userKey = $row["userId"];
+        for($i=0;$i<count($userName);$i++)
+        {
+            $isMatch = false;
+            $telCount = count($tel[$i]);
+            for( $j=0; $j<count($telCount); $j++ ){
+                $query = "SELECT * FROM userinfo where (tel LIKE '%".$tel[$i][$j]."%')";
+                $result = mysqli_query($connection, $query);
+                $row = mysqli_fetch_assoc($result);
+                if( $row["userId"] ){
+                    $rowArr = explode(",", $row["tel"]);
+                    if( count($rowArr) < $telCount ){
+                        $telValue = implode(',', $tel[$i]);
+                        $query="UPDATE userinfo SET ";
+                        $query.=" tel='$telValue'";
+                        $query.=" WHERE userId = ".$row['userId'];
+                        $result = mysqli_query($connection, $query) or die("Connection failed in userinfo update : " . mysqli_error($connection));
                     }
+                    
+                    array_push($insertedKeyArray, $row["userId"]);
+                    $isMatch = true;
+                    break;
                 }
             }
-            array_push($insertedKeyArray, $userKey);
-        } else {
-            die("Connection failed in userInfo table: " . mysqli_error($connection));
+            
+            if( !$isMatch ) {
+                $telephoneValue = implode(',', $tel[$i]);
+                $query = "INSERT IGNORE INTO userinfo (userName, tel) VALUES ('$userName', '$tel');";
+                $result = mysqli_query($connection, $query) or die("Connection failed in userInfo table: " . mysqli_error($connection));
+                if($result){
+                    $userKey = mysqli_insert_id($connection);
+                    array_push($insertedKeyArray, $userKey);
+                }
+            }
         }
         
         //3) insert Exercise
-        $query_exercise = "INSERT INTO exercise(regionKey, userKey, notice) VALUES ('$insertedKeyArray[0]', '$insertedKeyArray[1]', '$notice');";
-        $result = mysqli_query($connection, $query_exercise) or die("Connection failed in exercise table: " . mysqli_error($connection));
-        if($result){
+        for( $k=0; $k<count($insertedKeyArray); $k++ ){
+            $query_exercise = "INSERT INTO exercise(regionKey, userKey, notice) VALUES ('$regionKey', '$insertedKeyArray[$k]', '$notice');";
+            $result = mysqli_query($connection, $query_exercise) or die("Connection failed in exercise table: " . mysqli_error($connection));
+        
+            if( $result ) {
+                $exerciseResult = true;
+            } else {
+                $exerciseResult = false;
+                break;
+            }
+        }
+        
+        if( $exerciseResult ){
             $response = array(
                 'status' => 1,
                 'status_message' => 'Address Added Successfully.'
