@@ -155,7 +155,7 @@ class API extends REST {
         {
             $isMatch = false;
             $telCount = count($tel[$i]);
-            for( $j=0; $j<count($telCount); $j++ ){
+            for( $j=0; $j<$telCount; $j++ ){
                 $query = "SELECT * FROM userinfo where (tel LIKE '%".$tel[$i][$j]."%')";
                 $result = mysqli_query($connection, $query);
                 $row = mysqli_fetch_assoc($result);
@@ -177,7 +177,7 @@ class API extends REST {
             
             if( !$isMatch ) {
                 $telephoneValue = implode(',', $tel[$i]);
-                $query = "INSERT IGNORE INTO userinfo (userName, tel) VALUES ('$userName', '$tel');";
+                $query = "INSERT IGNORE INTO userinfo (userName, tel) VALUES ('$userName[$i]', '$telephoneValue');";
                 $result = mysqli_query($connection, $query) or die("Connection failed in userInfo table: " . mysqli_error($connection));
                 if($result){
                     $userKey = mysqli_insert_id($connection);
