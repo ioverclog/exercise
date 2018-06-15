@@ -16,9 +16,15 @@
   detailAddress <input type="text" name="detailAddress" /><br />
   startTime <input type="text" name="startTime" /><br />  
   <br />
-  userName <input type="text" name="userName" /><br />
-  tel <input type="text" name="tel" /><span>[+]</span>
-  
+  <div id="userinfo">
+      <div class="userInfo" style="border:1px solid #ccc;padding:10px;">
+          userName <input type="text" name="userName" /><span class="addUser">[+]</span><br />
+          <div class="telephone">
+            tel <input type="text" name="tel" /><span class="addTelephone">[+]</span><br />
+          </div>    
+      </div>
+  </div>
+    
   <br />
   <input type="submit" value="InsertDb" />
 </form>
@@ -52,10 +58,25 @@
               address2 = $form.find( 'input[name="address2"]' ).val(),
               address3 = $form.find( 'input[name="address3"]' ).val(),
               detailAddress = $form.find( 'input[name="detailAddress"]' ).val(),
-              startTime = $form.find( 'input[name="startTime"]' ).val(),
+              startTime = $form.find( 'input[name="startTime"]' ).val();
+          
+          var userNameArr = [];
+          var telArr = [];
+          $('#userinfo .userInfo').each(function(idx1, element){
+              var userName = $(element).find('input[name="userName"]').val();
               
-              userName = $form.find( 'input[name="userName"]' ).val(),
-              tel = $form.find( 'input[name="tel"]' ).val();
+              telArr[idx1] = [];
+              $(element).find('input[name="tel"]').each(function(idx2, element){
+                  var tel = $(element).val();
+                  if(tel){
+                    telArr[idx1][idx2] = tel.trim();
+                  }
+              });
+              if(userName){
+                userNameArr.push(usrName.trim());
+              }
+          });
+             
               
           var url = '/exerciseApi/api/apiTest.php';
           axios.post(url, {
@@ -68,8 +89,8 @@
                   address3 : address3,
                   detailAddress: detailAddress,
                   startTime : startTime,
-                  userName : userName,
-                  tel : tel
+                  userName : userNameArr,
+                  tel : telArr
               }
           })
           .then(function (response) {
@@ -169,6 +190,21 @@
               }
         });
      });
+    
+    //USER INFO
+    $("#userinfo").on('click', '.addTelephone', function(e){
+        var $telephone = $(e.currentTarget).closest('.telephone');
+        $telephone.append('<input type="text" name="tel" /><br />');
+    });
+    
+    $("#userinfo").on('click', '.addUser, function(){
+        $("#userinfo").append('<div class="userInfo" style="border:1px solid #ccc;padding:10px;">\n' +
+          userName <input type="text" name="userName" /><span class="addUser">[+]</span><br />\n' +
+          <div class="telephone">\n' +
+            tel <input type="text" name="tel" /><span class="addTelephone">[+]</span><br />\n' +
+          </div>\n' +
+      </div>');
+    });
 </script>
 
 </body>
